@@ -1,0 +1,105 @@
+#!/bin/bash
+
+check_dir() {
+
+INPUT=$1
+
+files=$(find $INPUT -maxdepth 1 -mindepth 1)
+
+if [ -z "$files" ]
+then
+exit 0
+fi
+
+#pulls all of the files in the current directory
+file_list=$(basename -a $(find $INPUT -maxdepth 1 -mindepth 1 | tr '\n' ' '))
+
+#looks for and places all of the bad names in the variable
+bad_names=$(echo "$file_list" | grep -E '^[-\.]|^.{15,}$|[^[:alpha:]\._-]')
+
+#check if only cases bn 2 files differ by casing
+duplicates=$(echo "$file_list" | sort -f | uniq -Di)
+
+all_bad_words="$bad_names $duplicates"
+
+###Ensures there are no duplicate files ###
+bad_files=$(echo "$all_bad_words" | tr ' ' '\n' | sort | uniq | tr '\n' ' ')
+
+### Loops through and creates the full 
+###working directory of each badfile ###
+for basename in $bad_files
+do
+file=$INPUT"/"$basename
+if [ -d "$file" ]
+then
+echo $file"/"
+else
+echo "$file"
+fi
+done
+
+}
+
+### Start of the main script ###
+if [ $# -eq 2 ]
+then
+INP=$2
+elif [ $# -eq 1 ] && [[ $1 != -r ]]
+then
+INP=$1
+elif [ $# -eq 0 ] || ([ $# -eq 1 ] && [[ $1 =~ -r ]])
+then
+INP=$(pwd)
+fi
+
+
+### checks to see if input has 2 or more arguments ###
+if [ $# -gt 2 ]
+then
+echo 1>&2 "Error, too many input arguments"
+exit 1
+fi
+
+### checks if input has 2 arguments where the first is
+### "-r" and the second doesn't start with a hyphen###
+if [ $# -eq 2 ] && ([[ $2 =~ ^[-] ]] || [[ $1 != -r ]]) 
+then
+echo 1>&2 "Error, input starts with a hyphen (-) or first arg was not '-r'."
+exit 1
+fi 
+
+### checks if input is a symbolic link ###
+if [ $# -ne 0 ] && [ -h $1 ]
+then
+echo 1>&2 "Error, file is a symbolic link."
+exit 1
+fi
+
+### Checks if inputted file is a directory ###
+if [ ! -d $INP ]
+then
+echo "Error, inputted name is not a valid directory." 1>&2
+exit 1
+fi
+
+### Checks if the file is readable ### 
+if [ ! -r $INP ]
+then
+echo "Error, the file is not readable" 1>&2
+exit 1
+fi
+
+### Checks if the file is called recursively ###
+if [[ $1 =~ -r ]]
+then
+find "$INP" -type d -exec "$0" {} ';'
+fi
+
+### checks if input argument is a directory and will call 
+##the check_dir function non-recursively ###
+if [ -d $INP ] && [[ $1 != -r ]]
+then
+check_dir $INP
+fi
+
+

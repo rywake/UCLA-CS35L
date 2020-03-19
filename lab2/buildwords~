@@ -1,0 +1,23 @@
+#!/bin/bash
+
+sed 's/<u>//g' | #gets rid of <u> in the text
+sed 's/\?//g' |  #gets rid of ? in the text
+sed 's/<\/u>//g' | #gets rid of </u> in the text
+sed 's/<br>//g' |  #gets rid of <br> in the text
+sed -E '/[^>]$/{N;s/\n//;}' | #removes \n from English linw
+sed -E '/[^>]$/{N;s/\n//;}' |
+grep -E '<td.*>' |   #isolates all lines with <td>
+sed 's/[ ]*<td><font color.*//g' | #gets rid of HTML lines at the top of the file
+sed 's/[ ]*<td><font width.*//g' |
+sed '1,2d' |
+sed 'n; d' | #gets rid of the English characters
+sed 's/<td[^>]*>//g' | #gets rid of beginning <td> tags
+sed 's/<\/td>//g' | # gets rid of ending </td> tags
+tr '`' "'" | #comverts hawaiian ` to apostrophe "'"
+tr '[:upper:]' '[:lower:]' | #converts uppercase letters to lowercase
+tr -s  " " "\n" | # converts spaces to newline
+tr -s '[,-]' '\n' | #convers , and - to newline
+sed 's/^\n//g' | #gets rid of empty lines
+sed 's/[ ]//g' |
+sed "s/[^p'kmnwlhaeiou]//g" |
+sort -u

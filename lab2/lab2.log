@@ -1,0 +1,84 @@
+Ryan Wakefield
+904975422
+Lab2.log
+
+First, I wanted the right local outputs 
+so I used the command:
+"LC_ALL='C'"
+to ensure that it was correct.
+
+Next, I uploaded the webpage of the 
+assignemnt to the server using the command:
+wget http://web.cs.ucla.edu/classes/winter20/cs35L/assign/assign2.html
+
+
+
+tr -c 'A-Za-z' '[\n*]' < assign2.html : Moves every word or return line to 
+its own line and outputs the result. REPLACES ANY 
+NON-ALPHABETIC CHARACTER WITH A NEW-LINE CHARACTER.
+
+tr -cs 'A-Za-z' '[\n*]'  < assign2.html  :Moves every word to 
+its own line, ignores return new lines. DOES NOT REPEAT REPLACING
+ A NEWLINE IF THERE HAS ALREADY BEEN ONE USED BEFORE THE WORD.
+
+tr -cs 'A-Za-z' '[\n*]'  < assign2.html | sort 
+:rearranges the lines in alphabetical order
+
+tr -cs 'A-Za-z' '[\n*]'  < assign2.html | sort -u 
+: sorts the words but gets rid of repeats.
+
+tr -cs 'A-Za-z' '[\n*]'  < assign2.html | sort -u | comm - words 
+: Sorted list of all the words that were found 
+in file 2 but not in file 1 (html file)
+
+tr -cs 'A-Za-z' '[\n*]'  < assign2.html | sort -u | comm -23 - words
+ # ENGLISHCHECKER :Prints only words unique to file 1, that aren't
+ found in the english disctionary.
+ (Looks like includes capitalized words).
+
+
+Next, I downloaded a copy of the hawaiian website 
+to the server using the command:
+wget https://www.mauimapp.com/moolelo/hwnwdshw.htm
+
+In order to delete the text needed to be deleted
+ i used the commands:
+tr -d '<u>' <hwords >hwords
+tr -d '</u>' <hwords
+tr -d '?' <hwords
+
+This will delete any instances that these characters 
+appear in the text file:
+
+[ ]*<td[^>]*>[mhawaiian]*<\/td>[ ]*
+
+I then used the rest of the commands found in buildwords to remove all
+ words and characters except those found in Hawaiian words.
+
+
+To check for misspelled words in the assignment
+ webpage I used the following command :
+
+tr -cs 'A-Za-z' '[\n*]' < assign2.html | tr '[:upper:]' '[:lower:]'
+ | sort -fu | comm -23 - words > misspelledEng
+
+tr -cs 'A-Za-z' '[\n*]' < assign2.html | tr '[:upper:]' '[:lower:]'
+ | sort -fu | comm -23 - hwords > misspelledHwn
+
+After using the commands:
+
+wc -w misspelledEng
+wc -w misspelledHwn
+
+I learned that there were a toral of 48 misspelled english
+ words on the webpage and 548 misspelled hawaiian words.
+
+Examples of misspelled english words on the webpage are:
+charset
+crlf
+ctype
+
+And examples of misspelled Hawaiian words on the webpage are:
+about
+above
+accent
