@@ -1,0 +1,54 @@
+1. You use the command "man -k <word>"
+
+2. mv is located in /usr/bin/mv and sh is located in /usr/bin/sh. I used "man which", "which mv", and "which sh" commands.
+
+3. In order to find the executable I used the command "find /usr/bin -name ?r -executable" and found the following executables:
+/usr/bin/tr
+/usr/bin/ar
+/usr/bin/pr
+
+4. I used the command "ls -l /usr/bin/emacs" and it showed that the file executed is /etc/alternatives/emacs. I then used the command "ls -l /etc/alternatives/emacs" to see if that file was a symbolic link and it was and it gave me /usr/bin/emacs-24.3. I put this file in the command using "ls -l /usr/bin/emacs" and it told me that this file was the root. Thus the file being executed is /usr/bin/emacs-24.3.
+
+5. To find the version of /usr/bin/gcc, I used the command "which /usr/bin/gcc --version" and it showed that the version of the program is v2.20. To get the version of the plain gcc application I used "gcc -v" and got that the version is 4.8.5. They are different programs because the local file is more up to date than the application because that is the file that we are using regularly.
+
+6. The symbolic mode u+sx means that rthe system is adding permissions to users (u) and so users will have a set user or group ID on execution of this command (s) adn they will be given permission to execute files. The mode o-w means that the owner will lose permission to write in files. The "+" means gain permissions to existing permissions, the "-" means lose permission to existing permissions.
+
+7. To find all directories modified in the last 4 weeks in the directory /usr/local/cs I used the command "find /usr/local/cs -mtime -28 -type d" and the first 5 directories that were listed are:
+/usr/local/cs
+/usr/local/cs/src/grep
+/usr/local/cs/src/grep/RCS
+/usr/local/cs/share/info
+/usr/local/cs/share/man/man1
+
+8. I used the command "which find" to determine the directory find was in. It is in /usr/bin. I then used the command "find /usr/bin -type l" to display all the symbolic link files in the directory. The first 5 are shown below:
+
+/usr/bin/pmiostat
+/usr/bin/xzfgrep
+/usr/bin/updmap
+/usr/bin/systemd-coredumpctl
+/usr/bin/rpmquery
+
+Finally, I used the command "find /usr/bin -type l | wc -l" to get the total number of symbolic link files there are. There are a total of 280 files.
+
+9. The oldest regular file is librom1394.so.0.3.0 and I used the command "ls /usr/lib64 -a -t" to find this.
+
+10.The locale command gets its information from the system based on the settings of the environment variables that control the locale. It determines what region the machine thinks you are in and uses that information for time zones and currency.
+
+11. I used the command "C-h a" and then put in the keyword "downcase". There are two commands with "downcase" in its name:
+downcase-region
+downcase-word
+
+12. The following emacs keystrokes function as the following:
+     C-M-r: reverses the search direction in emacs
+     C-M-s: does a regular search of the file
+     C-M-t: transpose (transfer) sexps
+     C-M-u: stops searching through the file
+     C-M-v: scrolls through the winow
+
+To find what these commands do i used emacs as well as the emacs manual.
+
+13. C-g abouts a partially typed command or an executing command and it also abort a current search. I used emacs and its manual to determine what it does.
+
+14. The yank command inserts the clipboard content or the last stretch of the killed text. I used the command "C-h a" to search for commands in emacs and then I searched for yank in the command bar.
+
+15.To learn the difference between ls -l and dired in emacs, I called the dired command in emacs "C-x d /usr/bin" to see what it would display. I also used "ls -l /usr/bin" to display what is shown when I use the ls -l command. The emacs dired command shows hiddent files as well as a few different file types while the ls command shows the files in long format.

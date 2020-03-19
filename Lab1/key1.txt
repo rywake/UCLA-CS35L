@@ -1,0 +1,111 @@
+Homework Lab 1 CS 35L
+
+1. "C-s RET HTML RET C-s RET scavenger RET ESC b C-s RET self-referec DEL ntial RET ESC b ESC b\
+ C-s RET arrow RET ESC b C-e C-a"
+
+I used the commands of moving the cursor to the beggining and end of words, beginning and ending of lines, and searching for keywords in the emacs. I did not use the arrow keys to navigate the file.
+
+2. " Original keys: ESC O B ESC O B ESC O B ESC O B ESC O B ESC O B ESC O B ESC O B ESC\
+ O B ESC O B ESC O B ESC O B ESC O B ESC O B ESC O B ESC O B ESC O B ESC O B ESC O B \
+C-k C-s RET DELETE-ME RET <<comment-kill>> C-s RET #Comments RET C-s RET #Comments RE\
+T 2*C-e ESC 0 C-k ESC O A C-k ESC O B ESC O B C-k <<comment-kill>> ESC O B C-p ESC O B ESC O D ESC O D ESC O D ESC O \
+D C-k ESC O B C-k ESC O B C-l C-k ESC O B C-k C-s RET <! RET <<comment-kill>>"
+
+3. <<query-replace>> Assignment SPC 1 RET Assigne DEL ment SPC 42\
+ RET SPC . <<query-replace>> UTF-8 RET US-ASCII RET . ESC C-s [^[:ascii:]] RET <<comment-kill>> C-s RET < / ol> 2*RET
+
+4.NUL ESC O B ESC O B C-e ESC w ESC g g 18 RET ESC O B C-y NUL C-e ESC w ESC g g 131 RET ESC O A RET ESC O A RET C-y ESC O B ESC O B ESC O A ESC O A NUL ESC O B ESC O B C-e ESC w ESC g g 387 RET ESC O A RET C-y NUL C-e ESC w ESC g g 433 RET C-y NUL ESC O B ESC O B ESC O B C-e ESC w ESC g ESC g 434 2*RET ESC C O A C-y N UL C-e ESC w ESC g ESC g 455 RET C-y NUL ESC O B ESC O B ESC O B ESC O B ESC O B ESC O B ESC O B ES\
+C O B ESC O B ESC O B ESC O B ESC O B ESC O B ESC O B ESC O B ESC O B ESC O B ES\
+C O B ESC O B ESC O B ESC O B ESC O B ESC O B ESC O B ESC O B ESC O B ESC O B ES\
+C O B ESC O B ESC O B ESC O B ESC O B ESC O B ESC O B ESC O B ESC O B ESC O B ES\
+C O B ESC O B ESC O B ESC O B ESC O B ESC O B ESC O B ESC O B ESC O B ESC O B ES\
+C O B ESC O B ESC O B ESC O B ESC O B C-e C-w C-x u  C-e RET <!-- ESC O B ESC O B ESC O B ESC O B ESC O B ESC O B E\
+SC O B ESC O B ESC O B ESC O B ESC O D<-- 2*DEL !-- ESC O B ESC O B ESC O B ESC \
+O B ESC O B ESC O B ESC O B ESC O B ESC O B ESC O B ESC O B ESC O D ESC O D ESC \
+O D ESC O D<!00 2*DEL -- ESC O B ESC O B ESC O B ESC O B ESC O B ESC O B ESC O B\
+ ESC O B ESC O B ESC O B ESC O B ESC O B ESC O D ESC O D ESC O D<!-- ESC O B ESC\
+ O B ESC O B ESC O B ESC O B ESC O B ESC O B ESC O B ESC O B ESC O B ESC O A ESC\
+ O A ESC O A ESC O D ESC O D ESC O D ESC O D ESC O D<!-- 3*DEL ESC O C ESC O C E\
+SC O C ESC O C ESC O C ESC O C ESC O C ESC O C ESC O C ESC O C ESC O C ESC O C E\
+SC O C ESC O C ESC O C ESC O C ESC O C ESC O C ESC O C ESC O C ESC O C ESC O C E\
+SC O C ESC O C ESC O C ESC O C ESC O C ESC O C ESC O C ESC O C ESC O C ESC O C<!\
+-- ESC O B ESC O B ESC O B ESC O B ESC O B ESC O D C-a <!-- ESC O B ESC O B ESC \
+O B ESC O B ESC O B ESC O B ESC O B ESC O B ESC O B--> <<replace-string>> < ol> RET < oL> RET 
+
+There were 7 occurences of the string "<ol>
+
+5. In order to make the new directory I went to the home directory and used the command "mkdir junk" 
+
+# include SPC < stdio.h> RET int RET main SPC ( void ) RET { \
+RET 2*SPC int SPC c SPC = SPC getchar SPC ( ) ; RET 2*SPC if SPC ( c SPC < SPC \
+0 ) RET 4*SPC { RET 6*SPC if SPC ( ferror SPC ( stdin 2*) RET 8*SPC perror SPC \
+( "stdin" ) ; RET 6*SPC else RET 8*SPC fprintf SPC ( stderr , SPC "EOF SPC on S\
+PC input \ n" ) ; RET 6*SPC return SPC 1 ; RET 4*SPC } RET 2*SPC if SPC ( putch\
+ar SPC ( c ) SPC < SPC 0 SPC || SPC fclose SPC ( stdout ) SPC != SPC 0 ) RET 4*\
+SPC { RET 6*SPC perror SPC ( "stdout" ) ; RET 6*SPC return SPC 1 ; RET 4*SPC } \
+RET 2*SPC return SPC 0 ; RET }
+
+To compile the C file I created an executable called hello using the command "gcc hello.c -o hello". Now I can compile the C-file hello.c and put it into the executable.
+
+<<compile>> hello RET  C-x 4 b hello-out RET C-u ESC ! ./hello RET
+
+The program outputted "EOF on input".
+
+6. C-x b RET (eval-print-last-sexp) SPC most-po TAB sitive-fixnum LFD (eval-print-last-sexp) SPC most-nega\
+tive-fixnum LFD
+
+The results from the evaluations are shown below:
+
+(eval-print-last-sexp) most-positive-fixnum
+2305843009213693951
+
+(format "%x" 2305843009213693951)
+"1fffffffffffffff"
+
+(eval-print-last-sexp) most-negative-fixnum
+-2305843009213693952
+
+(format	"%x" -2305843009213693951)
+"2000000000000001"
+
+These numbers for max and min make sense as they are essentially the power of 2, close to 2^64. So This makes sense as the max and min can be stored in a long-int variable.
+
+(random SPC "904-975-422") LFD
+
+The results of the random number generator with my school ID are shown below:
+
+(random "904-975-422")
+-1600908568062071786
+
+(setq SPC x SPC (random)) LFD (setq SPC y SPC (random)) LFD (setq SPC p SPC (* SPC x SPC\
+ y( DEL )) LFD (setq SPC r SPC (logand SPC p SPC most-positive-fixnum)) LFD
+
+The results of p and r, as well as x and y are shown below:
+
+(setq x (random))
+-690471571467697578
+(setq y (random))
+1270842846986083057
+(setq p (* x y))
+1353891290858483446
+(setq r (logand p most-positive-fixnum))
+1353891290858483446
+
+The analysis of x and y overflows when they are multiplied together.
+
+They aren't truly random in the mathematical sense because there are a finite number of possibilities for what these numbers could be beacuse they are bound to between 1 and 2^64. When we take the probability that x and y are both greater than 2^32 and thus cause an overflow, P(x > 2^32 and y > 2^32) = P(x > 2^32) *  P(y > 2^32) we find that the probability of this happening is very close to 1, and thus very probable. Thus it is very inprobable that the value r will be the correct product of two integers.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
