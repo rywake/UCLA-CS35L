@@ -1,0 +1,78 @@
+1. Created this new file"
+
+touch hw7.txt
+
+2. Created a new branch in the diffutils:
+
+git checkout v3.0 -b quote
+
+3. Installed the change into my new branch:
+
+patch -p1 < ../quote-3.0-patch.txt 
+
+This puts all of our changes into the new branch
+
+4. Used the "C-x 4 a" in emacs to figure out how to use it on a random file.
+
+5. In order to make the ChangeLog, I went into each of the source files that I changed and used the command:
+
+"C-x 4 a" and then for each of the files I made a new log in ChangeLog to record what changed. All of these changes were saved to a
+
+file called ChangeLog.
+
+6. To commit all of the changes to the new branch, I used the command:
+
+"git commit -aF ChangeLog"
+
+where "a" takes all of the modified files and commits them, and "F" takes the commit message from the file inputted after.
+
+7. To make the patch file, I used the command:
+
+"git format-patch -1 --stdout > ../formatted-patch.txt"
+
+8. To check to make sure that my patch works using the following commands:
+
+git clone ~eggert/src/gnu/diffutils diffutils-t 
+cd diffutils-t
+git checkout v3.0 -b patchery
+git am < ../formatted-patch.txt
+./bootstrap
+patch -p0 < ../diffutils-gets.diff
+./configure
+make
+
+All of these commands execute succesfully. Make check does not execute successfully, but on Piazza it says that it is not a problem.
+
+I test that the program is working problem using the test cases:
+
+cd diffutils-t
+./src/diff . -
+
+and the following output is:
+
+cannot compare '-' to a directory
+
+which is what we were exoecting.
+
+I also used the command:
+
+./src/diff --help
+
+
+and I get the output that is expected. The output is the same that is in the lab.
+
+9. When I run the command:
+
+make distdir
+
+it makes a directory called diffutils-3.0.1-9b1c and when I cd into the directory, I get that the ChangeLog shows all of the changes that I made in the ChangeLog, which means that the patch was successful.
+
+10. First I download the repository using the command:
+
+git clone ~eggert/src/gnu/emacs-CS-35L/
+
+Then I go into the directory and run the command:
+
+gitk
+
+and this gives me a list of the changes to this repository. The newest merge that is not newer than 1-25-2015 happened on 1-25-2015 and it was called "merge branch 'master' into xwidget". The committer was Joakim Verona. It looks like what was merged was an added hint to webkit buffer, and improved glitch fix, and a fix visual glitch during webkit resizing. This merge had 129 branches, including master and remotes/master/origin. This merge follows emacs-24.4 and precedes emacs-25.0.90.

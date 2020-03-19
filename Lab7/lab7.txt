@@ -1,0 +1,201 @@
+1. The first thing I wanted to do for this lab is to use git to get a copy of Diffutils repository. In order to do this, I used the command:
+
+$ git clone ~eggert/src/gnu/diffutils
+
+2. We then wanted to get a log of the changes to the Diffutils amster branch and put it into a file, to do this I used the command:
+
+$ git log > ../git-log.txt
+
+3.Next, we wanted to get a list of the tags and put them into the file "git-tags.txt", I used the command:
+
+$ git tag > ../git-tags.txt
+
+4. We now need to find the commit entitled “maint: quote 'like this' or "like this", not `like this'”. I went into git-log.txt and used the C-s command to find where that is located. 
+
+Now, to generate a patch for this, I used the command:
+
+git format-patch -1  62ca21c8c1a5aa3488589dcb191a4ef04ae9ed4f --stdout > ../quote-patch.txt
+
+5. To checkout out version 3.0 of the new branch, we can create a new branch using the command:
+
+$ git checkout v3.0
+
+6. To patch the file, I used the command:
+
+$ patch -p1 < ../quote-patch.txt 
+
+There were some issues when trying to patch this file. The program didn't find somw of the files that it was trying to patch and so they were just skipped over.  
+ 
+File program could not find:
+HACKING
+/doc/diffutils.texi
+/man/help2man
+
+
+7. We want to get an overview of what happened, in order to do this, we can use the command:
+
+$ git status
+
+and I get the following output:
+
+# HEAD detached at v3.0
+# Changes not staged for commit:
+#   (use "git add <file>..." to update what will be committed)
+#   (use "git checkout -- <file>..." to discard changes in working directory)
+#
+#	modified:   NEWS
+#	modified:   README
+#	modified:   TODO
+#	modified:   doc/diagmeet.note
+#	modified:   ms/config.bat
+#	modified:   ms/config.site
+#	modified:   po/en.po
+#	modified:   src/analyze.c
+#	modified:   src/cmp.c
+#	modified:   src/context.c
+#	modified:   src/diff.c
+#	modified:   src/diff.h
+#	modified:   src/diff3.c
+#	modified:   src/dir.c
+#	modified:   src/ifdef.c
+#	modified:   src/io.c
+#	modified:   src/sdiff.c
+#	modified:   src/side.c
+#	modified:   src/system.h
+#	modified:   src/util.c
+#	modified:   tests/help-version
+#
+# Untracked files:
+#   (use "git add <file>..." to include in what will be committed)
+#
+#	NEWS.orig
+#	README-hacking.orig
+#	README-hacking.rej
+#	README.orig
+#	README.rej
+#	cfg.mk.orig
+#	cfg.mk.rej
+#	ms/config.site.orig
+#	src/cmp.c.orig
+#	src/context.c.orig
+#	src/diff.c.orig
+#	src/diff.c.rej
+#	src/diff.h.orig
+#	src/diff3.c.orig
+#	src/diff3.c.rej
+#	src/dir.c.orig
+#	src/sdiff.c.orig
+#	src/system.h.orig
+#	src/util.c.orig
+#	tests/help-version.orig
+no changes added to commit (use "git add" and/or "git commit -a")
+
+8.  vc-revert can be used to undo changes made.
+
+9.I reverted all changes to the modified files that were not .c files using the command "C-x v u" and applied this to all of the file that were not .c files that were modifiend and listed above. These files are:
+
+NEWS
+README
+TODO
+doc/diagmeet.note
+ms/config.bat
+ms/config.site
+po/en.po
+src/diff.h
+src/system.h
+tests/help-version
+
+Then, I removed all of the changes to the comments in the .c files using the command "C-x v =" from the modified list above. To remove the files I used the command "C-u C-c C-a" on all of the hunks that changed a comment, as reverting these back will not change the function of the program. These files were:
+
+src/analyze.c 
+src/cmp.c
+src/context.c
+src/diff.c
+src/diff3.c
+src/dir.c
+src/ifdef.c 
+src/io.c
+src/sdiff.c
+src/side.c
+src/util.c
+
+10. To find the src files that were rejected, I both looked in the untracked files section of git status, and used the command "ls src/*.c.rej" to find all of the files with this format.
+
+We now need to manually make these changes to diff.c and diff3.c. To do this, I went into those file and usef M-g-g to go to the line numbers indicated. I found that they were not on the correct line number and that is why they were unable to be pathced. I looked around the general area of each of the line numbers that were indicated in the reject file, and was able to find all of the lines that needed the character "`" changed to a "'". I fixed all of the patches manually, and now they shouldn't be an issue.
+
+11. To remove all of the untracked files, I used "git clean -f". The following files were removed:
+
+Removing NEWS.orig
+Removing README-hacking.orig
+Removing README-hacking.rej
+Removing README.orig
+Removing README.rej
+Removing cfg.mk.orig
+Removing cfg.mk.rej
+Removing ms/config.site.orig
+Removing src/cmp.c.orig
+Removing src/context.c.orig
+Removing src/diff.c.orig
+Removing src/diff.c.rej
+Removing src/diff.h.orig
+Removing src/diff3.c.orig
+Removing src/diff3.c.rej
+Removing src/dir.c.orig
+Removing src/sdiff.c.orig
+Removing src/system.h.orig
+Removing src/util.c.orig
+Removing tests/help-version.orig
+
+12. I used "git status", and it outputted 6 files that were modified. I used the command:
+
+"git diff > quote-3.0-patch.txt"
+
+to put the diff patch file into the quote file. I ran:
+
+"cat quote-3.0-patch.txt | wc -l"
+
+and the output of this gave me 326 lines.
+
+13. To build the program, I used the following commands:
+
+./bootstrap
+./configure
+make
+make check
+
+
+I got an error when running make and make check with the gets command:
+
+./stdio.h:434:1: error: 'gets' undeclared here (not in a function)
+ _GL_WARN_ON_USE (gets, "gets is a security hole - use fgets instead");
+ ^
+
+I checked my program by running "diff . -" and got the ouput:
+
+diff: cannot compare '-' to a directory
+
+which is what we wanted because it does not have the "`" character.
+
+I then ran "diff --help" and checked to make sure all of the characters were changed correctly. They were.
+
+14. We needed to make new directories to test:
+   mkdir diffutils-3.0-patch
+   cp -r diffutils/src/ ./diffutils-3.0-patch
+   
+   git clone ~eggert/src/gnu/diffutils diffutils-3.0-unchanged
+   cd diffutils-3.0-unchanged
+   git checkout v3.0
+Then I went back to the other directories:
+
+mkdir diffutils-3.0
+cp -r diffutils-3.0-unchanged/src/*.c ./diffutils-3.0-patch
+   
+diffutils/src/diff -pru diffutils-3.0 diffutils-3.0-patch > quote-3.0-test.txt
+
+To get the difference between the two files.
+
+15. I ran the command:
+diffutils/src/diff -u quote-3.0-test.txt quote-3.0-patch.txt
+
+the files are for the most part the same, but there are differences with the quotations between the 2 files, which is expected because that is what we had changed.
+
