@@ -1,0 +1,367 @@
+Ryan Wakefield
+904975422
+
+The first thing we needed to do for this lab is to download simpgmp.c to the server. I downloaded this using the wget command:
+
+wget http://web.cs.ucla.edu/classes/winter20/cs35L/assign/simpgmp.c
+
+And then built the program using the command:
+
+gcc -o simp simpgmp.c -lgmp
+
+Next we want to calculate 2**(2**24) using the simpgmp program. First i ran the program:
+
+./simp 24
+
+to get 2**(24) and then ran the program on the output:
+
+./simp 16777216
+
+The lab says that the number should have 5,050,446 digits, start with 1818 and end with 7536. To check to make sure that my number is correct i ran the following commands:
+
+./simp 16777216 | wc -c
+./simp 16777216 | head -c 4
+./simp 16777216 | head -c -5050443
+
+And the results of all of these were as expected, with the exception that ec -c was 5,050,447. However, both the beginning and end of the number was the same.
+
+Next I ran the ldd command to see which dynamic libraries the simp program uses. When I run the command:
+
+ldd simp
+
+I obtain the result:
+
+linux-vdso.so.1 =>  (0x00007ffd0b77f000)
+libgmp.so.10 => /lib64/libgmp.so.10 (0x00007f8a81389000)
+libc.so.6 => /lib64/libc.so.6 (0x00007f8a80fbb000)
+/lib64/ld-linux-x86-64.so.2 (0x00007f8a81601000)
+
+These are the dynamic libraries the program uses.
+
+I then used strace to see which system calls the program makes, using the command:
+
+strace ./simp 5
+
+and looking for any system calls that use a .so file.
+
+The system calls that access a .so file are:
+
+access
+open
+
+These two files access dynamic libraries to function and shared object files are dynamically linked to the function.
+
+
+Next I invoked the command:
+
+ls /usr/bin | awk '(NR-904975422)%251 == 0'
+
+on the linux server and got a list of 11 commands that I now need to analyze.
+
+The commands that were outputted are:
+
+captoinfo
+dvd+rw-format
+gnomevfs-copy
+ipa
+lex
+nl
+pbmmake
+pnmquant
+rhino
+svnrdump
+x86_energy_perf_policy
+
+I then invoked ldd on each of the commands. Here are the commands I used for each of them:
+
+ldd /usr/bin/captoinfo
+ldd /usr/bin/dvd+rw-format
+ldd /usr/bin/gnomevfs-copy
+ldd /usr/bin/ipa
+ldd /usr/bin/lex
+ldd /usr/bin/nl
+ldd /usr/bin/pbmmake
+ldd /usr/bin/pnmquant
+ldd /usr/bin/rhino
+ldd /usr/bin/svnrdump
+ldd /usr/bin/x86_energy_perf_policy
+
+These are the results of each of the commands:
+
+ldd /usr/bin/captoinfo:
+
+linux-vdso.so.1 =>  (0x00007ffcc75a8000)
+libtic.so.5 => /lib64/libtic.so.5 (0x00007ff90b9bc000)
+libtinfo.so.5 => /lib64/libtinfo.so.5 (0x00007ff90b792000)
+libc.so.6 => /lib64/libc.so.6 (0x00007ff90b3c4000)
+/lib64/ld-linux-x86-64.so.2 (0x00007ff90bbcb000)
+
+ldd /usr/bin/dvd+rw-format:
+
+    linux-vdso.so.1 =>  (0x00007ffea2cf9000)
+    libpthread.so.0 => /lib64/libpthread.so.0 (0x00007f811d001000)
+    libstdc++.so.6 => /lib64/libstdc++.so.6 (0x00007f811ccfa000)
+    libm.so.6 => /lib64/libm.so.6 (0x00007f811c9f8000)
+    libgcc_s.so.1 => /lib64/libgcc_s.so.1 (0x00007f811c7e2000)
+    libc.so.6 => /lib64/libc.so.6 (0x00007f811c414000)
+    /lib64/ld-linux-x86-64.so.2 (0x00007f811d21d000)
+
+ldd /usr/bin/gnomevfs-copy:
+
+linux-vdso.so.1 =>  (0x00007fff2d1c2000)
+libgnomevfs-2.so.0 => /lib64/libgnomevfs-2.so.0 (0x00007fcef72fc000)
+libgmodule-2.0.so.0 => /lib64/libgmodule-2.0.so.0 (0x00007fcef70f8000)
+libxml2.so.2 => /lib64/libxml2.so.2 (0x00007fcef6d8e000)
+libdbus-glib-1.so.2 => /lib64/libdbus-glib-1.so.2 (0x00007fcef6b66000)
+libdbus-1.so.3 => /lib64/libdbus-1.so.3 (0x00007fcef6916000)
+libgobject-2.0.so.0 => /lib64/libgobject-2.0.so.0 (0x00007fcef66c6000)
+libssl.so.10 => /lib64/libssl.so.10 (0x00007fcef6454000)
+libcrypto.so.10 => /lib64/libcrypto.so.10 (0x00007fcef5ff1000)
+libavahi-glib.so.1 => /lib64/libavahi-glib.so.1 (0x00007fcef5ded000)
+libavahi-common.so.3 => /lib64/libavahi-common.so.3 (0x00007fcef5be0000)
+libavahi-client.so.3 => /lib64/libavahi-client.so.3 (0x00007fcef59cf000)
+libresolv.so.2 => /lib64/libresolv.so.2 (0x00007fcef57b6000)
+libgconf-2.so.4 => /lib64/libgconf-2.so.4 (0x00007fcef5585000)
+libgthread-2.0.so.0 => /lib64/libgthread-2.0.so.0 (0x00007fcef5383000)
+libglib-2.0.so.0 => /lib64/libglib-2.0.so.0 (0x00007fcef506d000)
+libselinux.so.1 => /lib64/libselinux.so.1 (0x00007fcef4e46000)
+libutil.so.1 => /lib64/libutil.so.1 (0x00007fcef4c43000)
+libpthread.so.0 => /lib64/libpthread.so.0 (0x00007fcef4a27000)
+libc.so.6 => /lib64/libc.so.6 (0x00007fcef4659000)
+libdl.so.2 => /lib64/libdl.so.2 (0x00007fcef4455000)
+libpcre.so.1 => /lib64/libpcre.so.1 (0x00007fcef41f3000)
+libz.so.1 => /lib64/libz.so.1 (0x00007fcef3fdd000)
+liblzma.so.5 => /lib64/liblzma.so.5 (0x00007fcef3db7000)
+libm.so.6 => /lib64/libm.so.6 (0x00007fcef3ab5000)
+libgio-2.0.so.0 => /lib64/libgio-2.0.so.0 (0x00007fcef3716000)
+libsystemd.so.0 => /lib64/libsystemd.so.0 (0x00007fcef34e5000)
+libffi.so.6 => /lib64/libffi.so.6 (0x00007fcef32dd000)
+libgssapi_krb5.so.2 => /lib64/libgssapi_krb5.so.2 (0x00007fcef3090000)
+libkrb5.so.3 => /lib64/libkrb5.so.3 (0x00007fcef2da7000)
+libcom_err.so.2 => /lib64/libcom_err.so.2 (0x00007fcef2ba3000)
+libk5crypto.so.3 => /lib64/libk5crypto.so.3 (0x00007fcef2970000)
+/lib64/ld-linux-x86-64.so.2 (0x00007fcef7565000)
+libmount.so.1 => /lib64/libmount.so.1 (0x00007fcef272d000)
+libgcc_s.so.1 => /lib64/libgcc_s.so.1 (0x00007fcef2517000)
+libcap.so.2 => /lib64/libcap.so.2 (0x00007fcef2312000)
+librt.so.1 => /lib64/librt.so.1 (0x00007fcef210a000)
+liblz4.so.1 => /lib64/liblz4.so.1 (0x00007fcef1ef5000)
+libgcrypt.so.11 => /lib64/libgcrypt.so.11 (0x00007fcef1c74000)
+libgpg-error.so.0 => /lib64/libgpg-error.so.0 (0x00007fcef1a6f000)
+libdw.so.1 => /lib64/libdw.so.1 (0x00007fcef181e000)
+libkrb5support.so.0 => /lib64/libkrb5support.so.0 (0x00007fcef160e000)
+libkeyutils.so.1 => /lib64/libkeyutils.so.1 (0x00007fcef140a000)
+libblkid.so.1 => /lib64/libblkid.so.1 (0x00007fcef11ca000)
+libuuid.so.1 => /lib64/libuuid.so.1 (0x00007fcef0fc5000)
+libattr.so.1 => /lib64/libattr.so.1 (0x00007fcef0dc0000)
+libelf.so.1 => /lib64/libelf.so.1 (0x00007fcef0ba8000)
+libbz2.so.1 => /lib64/libbz2.so.1 (0x00007fcef0998000)
+
+ldd /usr/bin/ipa:
+    I get an error that says:
+        not a dynamic executable
+
+ldd /usr/bin/lex:
+
+linux-vdso.so.1 =>  (0x00007ffc8576d000)
+libm.so.6 => /lib64/libm.so.6 (0x00007f86afc24000)
+libc.so.6 => /lib64/libc.so.6 (0x00007f86af856000)
+/lib64/ld-linux-x86-64.so.2 (0x00007f86aff26000)
+
+ldd /usr/bin/nl:
+
+    linux-vdso.so.1 =>  (0x00007fff9318a000)
+    libc.so.6 => /lib64/libc.so.6 (0x00007f0e4753e000)
+    /lib64/ld-linux-x86-64.so.2 (0x00007f0e4790c000)
+
+ldd /usr/bin/pbmake:
+
+    linux-vdso.so.1 =>  (0x00007ffd8d161000)
+    libnetpbm.so.11 => /lib64/libnetpbm.so.11 (0x00007f19259a0000)
+    libm.so.6 => /lib64/libm.so.6 (0x00007f192569e000)
+    libc.so.6 => /lib64/libc.so.6 (0x00007f19252d0000)
+    /lib64/ld-linux-x86-64.so.2 (0x00007f1925be0000)
+
+ldd /usr/bin/pnmquant:
+    I get the error:
+      not a dynamic executable
+
+ldd /usr/bin/rhino:
+I get the error:
+      not a dynamic executable
+
+ldd /usr/bin/svnrdump:
+
+    linux-vdso.so.1 =>  (0x00007ffe05b23000)
+    libsvn_client-1.so.0 => /lib64/libsvn_client-1.so.0 (0x00007fdb00067000)
+    libsvn_wc-1.so.0 => /lib64/libsvn_wc-1.so.0 (0x00007fdaffdd2000)
+    libsvn_ra-1.so.0 => /lib64/libsvn_ra-1.so.0 (0x00007fdaffbc5000)
+    libsvn_diff-1.so.0 => /lib64/libsvn_diff-1.so.0 (0x00007fdaff9b4000)
+    libsvn_ra_local-1.so.0 => /lib64/libsvn_ra_local-1.so.0 (0x00007fdaff7aa000)
+    libsvn_repos-1.so.0 => /lib64/libsvn_repos-1.so.0 (0x00007fdaff57c000)
+    libsvn_ra_svn-1.so.0 => /lib64/libsvn_ra_svn-1.so.0 (0x00007fdaff363000)
+    libsasl2.so.3 => /lib64/libsasl2.so.3 (0x00007fdaff146000)
+    libsvn_ra_neon-1.so.0 => /lib64/libsvn_ra_neon-1.so.0 (0x00007fdafef1f000)
+    libneon.so.27 => /lib64/libneon.so.27 (0x00007fdafecf4000)
+    libsvn_fs-1.so.0 => /lib64/libsvn_fs-1.so.0 (0x00007fdafeaec000)
+    libsvn_fs_fs-1.so.0 => /lib64/libsvn_fs_fs-1.so.0 (0x00007fdafe8bf000)
+    libsvn_fs_base-1.so.0 => /lib64/libsvn_fs_base-1.so.0 (0x00007fdafe68e000)
+    libsvn_fs_util-1.so.0 => /lib64/libsvn_fs_util-1.so.0 (0x00007fdafe48b000)
+    libsvn_delta-1.so.0 => /lib64/libsvn_delta-1.so.0 (0x00007fdafe27d000)
+    libsvn_subr-1.so.0 => /lib64/libsvn_subr-1.so.0 (0x00007fdafe018000)
+    libaprutil-1.so.0 => /lib64/libaprutil-1.so.0 (0x00007fdafddef000)
+    libcrypt.so.1 => /lib64/libcrypt.so.1 (0x00007fdafdbb8000)
+    libdb-5.3.so => /lib64/libdb-5.3.so (0x00007fdafd7fa000)
+    libexpat.so.1 => /lib64/libexpat.so.1 (0x00007fdafd5d0000)
+    libz.so.1 => /lib64/libz.so.1 (0x00007fdafd3ba000)
+    libsqlite3.so.0 => /lib64/libsqlite3.so.0 (0x00007fdafd105000)
+    libmagic.so.1 => /lib64/libmagic.so.1 (0x00007fdafcee8000)
+    libapr-1.so.0 => /lib64/libapr-1.so.0 (0x00007fdafccb9000)
+    libpthread.so.0 => /lib64/libpthread.so.0 (0x00007fdafca9d000)
+    libdl.so.2 => /lib64/libdl.so.2 (0x00007fdafc899000)
+    libc.so.6 => /lib64/libc.so.6 (0x00007fdafc4cb000)
+    libresolv.so.2 => /lib64/libresolv.so.2 (0x00007fdafc2b2000)
+    libgssapi_krb5.so.2 => /lib64/libgssapi_krb5.so.2 (0x00007fdafc065000)
+    libkrb5.so.3 => /lib64/libkrb5.so.3 (0x00007fdafbd7c000)
+    libk5crypto.so.3 => /lib64/libk5crypto.so.3 (0x00007fdafbb49000)
+    libcom_err.so.2 => /lib64/libcom_err.so.2 (0x00007fdafb945000)
+    libkrb5support.so.0 => /lib64/libkrb5support.so.0 (0x00007fdafb735000)
+    libgnutls.so.28 => /lib64/libgnutls.so.28 (0x00007fdafb3fb000)
+    libpakchois.so.0 => /lib64/libpakchois.so.0 (0x00007fdafb1f4000)
+    libproxy.so.1 => /lib64/libproxy.so.1 (0x00007fdafafd3000)
+    libuuid.so.1 => /lib64/libuuid.so.1 (0x00007fdafadce000)
+    libfreebl3.so => /lib64/libfreebl3.so (0x00007fdafabcb000)
+    /lib64/ld-linux-x86-64.so.2 (0x00007fdb004d0000)
+    libkeyutils.so.1 => /lib64/libkeyutils.so.1 (0x00007fdafa9c7000)
+    libselinux.so.1 => /lib64/libselinux.so.1 (0x00007fdafa7a0000)
+    libp11-kit.so.0 => /lib64/libp11-kit.so.0 (0x00007fdafa471000)
+    libtasn1.so.6 => /lib64/libtasn1.so.6 (0x00007fdafa25e000)
+    libnettle.so.4 => /lib64/libnettle.so.4 (0x00007fdafa02d000)
+    libhogweed.so.2 => /lib64/libhogweed.so.2 (0x00007fdaf9e06000)
+    libgmp.so.10 => /lib64/libgmp.so.10 (0x00007fdaf9b8e000)
+    libmodman.so.1 => /lib64/libmodman.so.1 (0x00007fdaf9986000)
+    libstdc++.so.6 => /lib64/libstdc++.so.6 (0x00007fdaf967f000)
+    libm.so.6 => /lib64/libm.so.6 (0x00007fdaf937d000)
+    libgcc_s.so.1 => /lib64/libgcc_s.so.1 (0x00007fdaf9167000)
+    libpcre.so.1 => /lib64/libpcre.so.1 (0x00007fdaf8f05000)
+    libffi.so.6 => /lib64/libffi.so.6 (0x00007fdaf8cfd000)
+
+ldd /usr/bin/x86_energy_perf_policy:
+
+    linux-vdso.so.1 =>  (0x00007ffd1955f000)
+    libc.so.6 => /lib64/libc.so.6 (0x00007f3049916000)
+    /lib64/ld-linux-x86-64.so.2 (0x00007f3049ce4000)
+
+There are error messages for some of the files that says 
+"not a dynamic executable". This error occurs because ldd 
+prints shared library dependenices, and if a file is not a 
+dynamic executable then it does not have any shared libraries.
+
+
+Next, I made a list of every dynamic library that is used by any of the commands from above and called it dynam_lib_list. To start, I want to use the command
+
+ldd /usr/bin/captoinfo /usr/bin/dvd+rw-format 
+/usr/bin/gnomevfs-copy /usr/bin/lex /usr/bin/nl /usr/bin/pbmmake 
+/usr/bin/svnrdump /usr/bin/x86_energy_perf_policy 
+/usr/bin/x86_energy_perf_policy > dynam_lib_list
+
+to get all of the dynamic libraries from the functions that have them. Now I want to get rid of the duplicates:
+
+sort -bu dynam_lib_list
+
+Finally, I want to get rid of the duplicates that differ only by 
+the numbers at the end. To do this we can get rid of 
+any uneccesary information at the end. I want to get 
+rid of all of the numbers and parentheses at the end, 
+and to do this I can use sed:
+
+cat dynam_lib_list | sed 's/([^)]*)//g' | sort -u > test > dynam_lib_list
+
+The sorted list is shown below:
+
+    	   	   	    /lib64/ld-linux-x86-64.so.2 
+			    libapr-1.so.0 => /lib64/libapr-1.so.0 
+			    libaprutil-1.so.0 => /lib64/libaprutil-1.so.0 
+			    libattr.so.1 => /lib64/libattr.so.1 
+			    libavahi-client.so.3 => /lib64/libavahi-client.so.3 
+			    libavahi-common.so.3 => /lib64/libavahi-common.so.3 
+			    libavahi-glib.so.1 => /lib64/libavahi-glib.so.1 
+			    libblkid.so.1 => /lib64/libblkid.so.1 
+			    libbz2.so.1 => /lib64/libbz2.so.1 
+			    libcap.so.2 => /lib64/libcap.so.2 
+			    libcom_err.so.2 => /lib64/libcom_err.so.2 
+			    libcrypto.so.10 => /lib64/libcrypto.so.10 
+			    libcrypt.so.1 => /lib64/libcrypt.so.1 
+			    libc.so.6 => /lib64/libc.so.6 
+			    libdb-5.3.so => /lib64/libdb-5.3.so 
+			    libdbus-1.so.3 => /lib64/libdbus-1.so.3 
+			    libdbus-glib-1.so.2 => /lib64/libdbus-glib-1.so.2 
+			    libdl.so.2 => /lib64/libdl.so.2 
+			    libdw.so.1 => /lib64/libdw.so.1 
+			    libelf.so.1 => /lib64/libelf.so.1 
+			    libexpat.so.1 => /lib64/libexpat.so.1 
+			    libffi.so.6 => /lib64/libffi.so.6 
+			    libfreebl3.so => /lib64/libfreebl3.so 
+			    libgcc_s.so.1 => /lib64/libgcc_s.so.1 
+			    libgconf-2.so.4 => /lib64/libgconf-2.so.4 
+			    libgcrypt.so.11 => /lib64/libgcrypt.so.11 
+			    libgio-2.0.so.0 => /lib64/libgio-2.0.so.0 
+			    libglib-2.0.so.0 => /lib64/libglib-2.0.so.0 
+			    libgmodule-2.0.so.0 => /lib64/libgmodule-2.0.so.0 
+			    libgmp.so.10 => /lib64/libgmp.so.10 
+			    libgnomevfs-2.so.0 => /lib64/libgnomevfs-2.so.0 
+			    libgnutls.so.28 => /lib64/libgnutls.so.28 
+			    libgobject-2.0.so.0 => /lib64/libgobject-2.0.so.0 
+			    libgpg-error.so.0 => /lib64/libgpg-error.so.0 
+			    libgssapi_krb5.so.2 => /lib64/libgssapi_krb5.so.2 
+			    libgthread-2.0.so.0 => /lib64/libgthread-2.0.so.0 
+			    libhogweed.so.2 => /lib64/libhogweed.so.2 
+			    libk5crypto.so.3 => /lib64/libk5crypto.so.3 
+			    libkeyutils.so.1 => /lib64/libkeyutils.so.1 
+			    libkrb5.so.3 => /lib64/libkrb5.so.3 
+			    libkrb5support.so.0 => /lib64/libkrb5support.so.0 
+			    liblz4.so.1 => /lib64/liblz4.so.1 
+			    liblzma.so.5 => /lib64/liblzma.so.5 
+			    libmagic.so.1 => /lib64/libmagic.so.1 
+			    libmodman.so.1 => /lib64/libmodman.so.1 
+			    libmount.so.1 => /lib64/libmount.so.1 
+			    libm.so.6 => /lib64/libm.so.6 
+			    libneon.so.27 => /lib64/libneon.so.27 
+			    libnetpbm.so.11 => /lib64/libnetpbm.so.11 
+			    libnettle.so.4 => /lib64/libnettle.so.4 
+			    libp11-kit.so.0 => /lib64/libp11-kit.so.0 
+			    libpakchois.so.0 => /lib64/libpakchois.so.0 
+			    libpcre.so.1 => /lib64/libpcre.so.1 
+			    libproxy.so.1 => /lib64/libproxy.so.1 
+			    libpthread.so.0 => /lib64/libpthread.so.0 
+			    libresolv.so.2 => /lib64/libresolv.so.2 
+			    librt.so.1 => /lib64/librt.so.1 
+			    libsasl2.so.3 => /lib64/libsasl2.so.3 
+			    libselinux.so.1 => /lib64/libselinux.so.1 
+			    libsqlite3.so.0 => /lib64/libsqlite3.so.0 
+			    libssl.so.10 => /lib64/libssl.so.10 
+			    libstdc++.so.6 => /lib64/libstdc++.so.6 
+			    libsvn_client-1.so.0 => /lib64/libsvn_client-1.so.0 
+			    libsvn_delta-1.so.0 => /lib64/libsvn_delta-1.so.0 
+			    libsvn_diff-1.so.0 => /lib64/libsvn_diff-1.so.0 
+			    libsvn_fs-1.so.0 => /lib64/libsvn_fs-1.so.0 
+			    libsvn_fs_base-1.so.0 => /lib64/libsvn_fs_base-1.so.0 
+			    libsvn_fs_fs-1.so.0 => /lib64/libsvn_fs_fs-1.so.0 
+			    libsvn_fs_util-1.so.0 => /lib64/libsvn_fs_util-1.so.0 
+			    libsvn_ra-1.so.0 => /lib64/libsvn_ra-1.so.0 
+			    libsvn_ra_local-1.so.0 => /lib64/libsvn_ra_local-1.so.0 
+			    libsvn_ra_neon-1.so.0 => /lib64/libsvn_ra_neon-1.so.0 
+			    libsvn_ra_svn-1.so.0 => /lib64/libsvn_ra_svn-1.so.0 
+			    libsvn_repos-1.so.0 => /lib64/libsvn_repos-1.so.0 
+			    libsvn_subr-1.so.0 => /lib64/libsvn_subr-1.so.0 
+			    libsvn_wc-1.so.0 => /lib64/libsvn_wc-1.so.0 
+			    libsystemd.so.0 => /lib64/libsystemd.so.0 
+			    libtasn1.so.6 => /lib64/libtasn1.so.6 
+			    libtic.so.5 => /lib64/libtic.so.5 
+			    libtinfo.so.5 => /lib64/libtinfo.so.5 
+			    libutil.so.1 => /lib64/libutil.so.1 
+			    libuuid.so.1 => /lib64/libuuid.so.1 
+			    libxml2.so.2 => /lib64/libxml2.so.2 
+			    libz.so.1 => /lib64/libz.so.1 
+			    linux-vdso.so.1 =>  
+
