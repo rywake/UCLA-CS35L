@@ -1,0 +1,105 @@
+Ryan Wakefield
+904975422
+Lab 4
+
+First I needed to download the copy of coreutils with the bug to the server. To do this I used the command:
+
+"wget http://web.cs.ucla.edu/classes/winter20/cs35L/assign/coreutils-with-bug.tar.gz"
+
+Next, I needed to decompress the tar file, and to do this I used the command:
+
+"tar -xvzf coreutils-with-bug.tar.gz"
+
+After decompressing the tar file, I download the patch needed to get coreutils to run using the command:
+
+"wget http://web.cs.ucla.edu/classes/winter20/cs35L/assign/coreutils.diff"
+
+I apply the patch to the coreutils by going into the coreutils directory and running the command:
+
+"patch -p0 < ../coreutils.diff"
+
+Now the file has been patched and i need to compile the coreutils. I create a directory to compile the program using:
+
+"mkdir core_wbug"
+
+and then prepend the path to the configure file in coreutils using the command:
+
+"./configure --prefix=/u/ma/ugrad/ryan/cs35l/lab4/core_wbug"
+
+and then use the commands "make" and "make install" to compile.
+
+I now go to the directory core_wbug. I follow the command given in the slides to reproduce the error and make a temporary directory:
+
+tmp=$(mktemp -d)
+cd $tmp
+touch -d '1918-11-11 11:00 GMT' wwi-armistice-cs35L
+touch now
+sleep 1
+touch now1
+TZ=UTC0 /u/ma/ugrad/ryan/cs35l/lab4/core_wbug/bin/ls -lt --full-time wwi-armistice-cs35L now now1
+
+
+This will output the result:
+-rw-r--r-- 1 ryan maugrad 0 1918-11-11 11:00:00.000000000 +0000 wwi-armistice-cs35L
+-rw-r--r-- 1 ryan maugrad 0 2020-02-04 19:19:04.176433726 +0000 now1
+-rw-r--r-- 1 ryan maugrad 0 2020-02-04 19:18:57.473266301 +0000 now
+
+which is what we wanted, bc this is an error as it should output files from newest to oldest. It is sorted in the wrong order and needs to be fixed.
+
+Now we need to find where in the file the bug exists. To do this we
+ need to go into the directory created for this program, in this 
+case "core_wbug" and use gdb to try to find where the 
+bug is occuring. To do this, we can use the command:
+"gdb ./bin/ls" inside the buggy directory.
+
+
+After entering gdb, I need to find functions that seem like could hold
+ the possible issue. I use the gdb command "info function" to examine 
+all of the function names in the progam, and set breakpoints at functions such 
+as compare_atime and compare_ctime, and sort_files, and 
+stepping through them, looking for issues.
+
+As I am stepping through gdb I come across the function "timespec_cmp" and this seems like a likely candidate after looking through it more. I download the lib with the source code using the command: 
+
+"cp coreutils-with-bug/lib/timespec.h patch" and look through this code. 
+I can see that the function does not account for if an output is negative, and 
+given the way that that the function stored time, as a 32-bit int, 
+it seems as though the value overflowed and this is what is causing the error. 
+To fix this function, I account for negative values, and produce this result.
+
+timespec_cmp (struct timespec a, struct timespec b)
+{
+    if (a.tv_sec > b.tv_sec)
+       return 1;
+    else if (a.tv_sec < b.tv_sec)
+       return -1;
+    else
+       return 0;
+}
+
+I now apply this to a diff file and named it "lab4.diff". This should fix the issue. I now apply the patch by going into my coreutils-with-bug directory and running the command:
+
+"patch -p1 < ../lab4.diff"
+
+and then running make and make install again. I remake the temporary directory:
+
+tmp=$(mktemp -d)
+cd $tmp
+touch -d '1918-11-11 11:00 GMT' wwi-armistice-cs35L
+touch now
+sleep 1
+touch now1
+
+
+And run the command below again:
+
+TZ=UTC0 /u/ma/ugrad/ryan/cs35l/lab4/core_wbug/bin/ls -lt --full-time wwi-armistice-cs35L now now1
+
+This time the file outputs the result:
+-rw-r--r-- 1 ryan maugrad 0 2020-02-11 03:38:56.218971460 +0000 now1
+-rw-r--r-- 1 ryan maugrad 0 2020-02-11 03:38:48.970729521 +0000 now
+-rw-r--r-- 1 ryan maugrad 0 1918-11-11 11:00:00.000000000 +0000 wwi-armistice-cs35L
+
+Which is what we were wanting. The files are now sorted correctly.
+
+
