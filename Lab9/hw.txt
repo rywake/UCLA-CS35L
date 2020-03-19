@@ -1,0 +1,16 @@
+1. If the team had been observing all of the bytes going across the network, 
+the resulting network would still be secure because the bytes going across were encrypted, and 
+they don't have the private key to decrypt the data, and thus the system is still secure. 
+If the team tapped my keyboard after I had done all the client-server setup, and they were able 
+to track when I put in my password, they would have access to my private key and thus be able 
+to decrypt the data, making the system not secure. If I had been booting off the USB and 
+the team had temporary access to it, they could have copied the files that were on the USB, 
+including the private key, and would be able to decrypt the data, making it not secure.
+
+2. The gpg2 --verify command doesn't verify that I personally created the file, it only checks 
+that I created and didn't change the signature of the file. In the gpg2 manpage, the 
+verify command only verifies the signed data and not the data outside of the signature, meaning as 
+long as the data for the signature wasn't changed, it will verify that you created it. If any other 
+data is changed, it will not catch it. The problem could be fixed by changing the signature data any 
+time any data is changed inside the file, meaning the signature will be 
+invalidated if any data in the file is changed.

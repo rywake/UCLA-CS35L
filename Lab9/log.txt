@@ -1,0 +1,54 @@
+Ryan Wakefield
+904975422
+
+1. The first thing we want to do is log into the UCLA linux server. I will log into server09. To do this, I used the command:
+ssh ryan@lnxsrv09.seas.ucla.edu
+
+and enter my password. To check to make sure that it works, I checked for a ssh file in the directory I am using the command:
+
+ls -a
+
+and found a .ssh file, so it worked.
+
+2. To generate an ssh key, I used the command:
+
+ssh-keygen
+
+I then save it to a file and entered a passphrase to access it if I want to ssh.
+
+Next, I want to be able to ssh into lnxsrv07 using the key that I created. I used the command:
+
+ssh-copy-id ryan@lnxsrv07.seas.ucla.edu
+
+and it created a file ~/.ssh/authorized_keys
+
+I then tried to log into lnxsrv07 from lnxsrv09, by using the command:
+ 
+ssh ryan@lnxsrv07.seas.ucla.edu
+
+and it prompted me to enter the password of the public key, which i did, and it let me into the server.
+
+To make it to where I am not prompted for a password every time I try to log into the linux server, I got to the client server and use the commands:
+
+eval "$(ssh-agent -s)"
+ssh-add
+
+I then tried to ssh into lnxsrv07 again, and it allowed me to and didn't ask for a password.
+
+Next i want to use port forwarding so that i cna run a command on a remote host that displays on my host. To do this I can use the command:
+
+ssh -X ryan@lnxsrv09.seas.ucla.edu
+
+This allows me to run a command on a remote host that will display something on my host.
+
+Next I want to do multi-hopping on the ucla server. I start on linux server 09. From there I ssh into linux server 7 using the command:
+   
+ssh -A lnxsrv07.seas.ucla.edu
+
+Then from there I can go to another linux server, call it linux server 06, using the command:
+
+ssh -A lnxsrv06.seas.ucla.edu
+
+I can use this to go to any of the linux server and move back and forth between the servers. I used this to start at linux server 09, and hop to 07, and finally 06.
+
+
