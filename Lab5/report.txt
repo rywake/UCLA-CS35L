@@ -1,0 +1,236 @@
+Ryan Wakefield
+904975422
+
+-------------Lab 5-----------------------------------------------------
+The first thing that I did when i was starting this lab to determine the difference between the 
+two files. The file tr2b reads and writes using the getchar() and putchar() commands, while the tr2u 
+file cannot use either of the commands, andthey ultimately are supposed to act like the tr command in bash.
+
+The implementations of my tr2b and tr2u can be found in the C files submitted to CCLE. After compeleting the tr2b and tr2u files, i chekced the valdity and corerectness of them.
+
+To check the correctness of these files, i ran some test cases for these files. For example, i ran the test case:
+
+printf 123456789 | MYROGRAM 13579 abcde
+
+Running both of my files with this test case, i obtained the result:
+
+a2b4c6d8e
+
+
+I also ran the test case:
+
+echo 'ab\nde-f' | MYPROGRAM 'a\n-' 'z@m+'
+
+and obtained the result:
+
+zb@mde+f
+
+from both of the results, which is what was expected. next, we need to compare system calls done by the two file commands and compare the result.
+
+The first strace i called was on the tr2b.c file and i used the command, :
+
+strace -c ./tr2b abc def < input.txt > output2b.txt
+
+where input.txt is a file of 5,000,000 bytes and output2b.txt was where the output was piped to. I got the following results:
+
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 30.17    0.000178           0       613           read
+ 28.31    0.000167           0       611           write
+  9.32    0.000055           6         9           mmap
+  8.31    0.000049          49         1         1 access
+  7.12    0.000042          42         1           execve
+  4.58    0.000027           7         4           mprotect
+  3.22    0.000019          10         2           open
+  3.05    0.000018           5         4           fstat
+  2.54    0.000015          15         1           brk
+  1.86    0.000011          11         1           munmap
+  1.02    0.000006           3         2           close
+  0.51    0.000003           3         1           arch_prctl
+------ ----------- ----------- --------- --------- ----------------
+100.00    0.000590                  1250         1 total
+
+This file did not take very long to run as i beilieve getchar and putchar are efficient for this case. 
+ 
+The next command we used to test tr2u was:
+
+strace -c ./tr2b abc def < input.txt > output2u.txt
+
+This took many more call and much longer time to perform compared to the tr2b call. The results are shown below:
+
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 54.60   24.906768           5   5000000           write
+ 45.40   20.713917           4   5000002           read
+  0.00    0.000000           0         2           open
+  0.00    0.000000           0         2           close
+  0.00    0.000000           0         2           fstat
+  0.00    0.000000           0         7           mmap
+  0.00    0.000000           0         4           mprotect
+  0.00    0.000000           0         1           munmap
+  0.00    0.000000           0         1           brk
+  0.00    0.000000           0         1         1 access
+  0.00    0.000000           0         1           execve
+  0.00    0.000000           0         1           arch_prctl
+------ ----------- ----------- --------- --------- ----------------
+100.00   45.620685              10000024         1 total
+
+There were many more read and write calls in tr2u than in tr2b. It took .000590 seconds to complete running tr2b on the file and it took 45.62065 to complete the same file using tr2u.
+
+
+When i I didn't pipe the outpu t inta file, it the results for tr2b is:
+
+ time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 97.59    0.064072           3     19960           write
+  2.41    0.001583           3       613           read
+  0.00    0.000000           0         2           open
+  0.00    0.000000           0         2           close
+  0.00    0.000000           0         4           fstat
+  0.00    0.000000           0         9           mmap
+  0.00    0.000000           0         4           mprotect
+  0.00    0.000000           0         1           munmap
+  0.00    0.000000           0         1           brk
+  0.00    0.000000           0         1         1 access
+  0.00    0.000000           0         1           execve
+  0.00    0.000000           0         1           arch_prctl
+------ ----------- ----------- --------- --------- ----------------
+100.00    0.065655                 20599         1 total
+
+
+And the results for tr2u are:
+
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 56.79   27.871492           6   5000000           write
+ 43.21   21.207400           4   5000002           read
+  0.00    0.000051          51         1           execve
+  0.00    0.000045          45         1           brk
+  0.00    0.000044           6         7           mmap
+  0.00    0.000027           7         4           mprotect
+  0.00    0.000022          11         2           open
+  0.00    0.000013          13         1         1 access
+  0.00    0.000010          10         1           munmap
+  0.00    0.000008           4         2           fstat
+  0.00    0.000006           3         2           close
+  0.00    0.000003           3         1           arch_prctl
+------ ----------- ----------- --------- --------- ----------------
+100.00   49.079121              10000024         1 total
+
+
+It takes each of the programs a little longer to process and run. As 
+can be seen, tr2u takes a lot more read and write function calls to process all 
+of the data compared with tr2b. Thus, tr2b runs faster.
+
+
+When running the time commands on both of the implementations:
+
+time MYPROG abc def < input.txt
+
+I get that it takes tr2b:
+real  0m1.731s
+user  0m0.384s
+sys   0m0.098s
+
+and tr2u:
+real	0m9.895s
+user	0m1.426s
+sys	0m8.458s
+
+To run. This is faster than strace because strace is having to track all the function calls and reads and writes.
+
+
+------------HOMEWORK 5 -----------------------------
+
+sfrob performance:
+
+To compare the performance of the 2 programs, i ran multiple diferent files with a different number of bytes to each of them and recorded the results. The command I used is:
+
+time MYPROGRAM < input#.txt
+
+where MYPROGRAM = ./sfrob or ./sfrobu
+
+And # is the number of bytes that is in the file. The results are shown below for each of the cases for the two programs. I ran the programs on files with 0,100,10000,1000000
+
+0 bytes:
+real	0m0.002s
+user	0m0.000s
+sys	0m0.001s
+
+100 bytes:
+real	0m0.002s
+user	0m0.001s
+sys	0m0.000s
+
+10,000 bytes:
+real   0m0.003s
+user   0m0.001s
+sys    0m0.002s
+
+1,000,000 bytes:
+real	  0m0.123s
+user	  0m0.082s
+sys	  0m0.021s
+
+sfrobu performance:
+
+0 bytes:
+real	0m0.003s
+user	0m0.000s
+sys	0m0.001s
+
+100 bytes:
+real	0m0.002s
+user	0m0.002s
+sys	0m0.000s
+
+10,000 bytes:
+real   0m0.002s
+user   0m0.000s
+sys    0m0.001s
+
+1,000,000 bytes:
+real	  0m0.049s
+user	  0m0.007s
+sys	  0m0.024s
+
+
+As you can see by the data, sfrob and sfrobu work similarly quickly for the smaller 
+files, but as the files grow exponentially, sfrobu starts working over 2x faster 
+than sfrob. That is becuase the sfrob program originally creates a heap with enough size to 
+store the entire file, and calls in the file all at once, while sfrob will read in the 
+input character by character. For large file, reading all of the file in at once 
+is much more efficient in terms of thef number of function calls you have to make, 
+and more time efficient.
+
+Looking at strace of sfrobu you, using the command:
+
+strace -c ./sfrobu < /usr/local/cs/gcc-6.3.0/libexec/gcc/x86_64-pc-linux-gnu/6.3.0/cc1plus > garbage
+
+we can see what functions the system calls when running this program.
+
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 96.49    1.991528           4    504236           write
+  3.40    0.070202       14040         5           read
+  0.06    0.001182         236         5           munmap
+  0.04    0.000854           1       952           mremap
+  0.00    0.000058          15         4           brk
+  0.00    0.000047           4        11           mmap
+  0.00    0.000042          42         1           execve
+  0.00    0.000014           5         3           open
+  0.00    0.000011           3         4           mprotect
+  0.00    0.000010          10         1         1 access
+  0.00    0.000008           2         4           fstat
+  0.00    0.000003           1         3           close
+  0.00    0.000000           0         1           arch_prctl
+------ ----------- ----------- --------- --------- ----------------
+100.00    2.063959                505230         1 total
+
+
+
+We can see that the system call munmap, mremap, and mmap to perform free, 
+realloc, and malloc respectively. Thus, if we were going to change our 
+program to just use those system calls, we we would use calls like the three 
+in he previous sentence, as well as open, access, and close to handle 
+not using the stdlib library.
