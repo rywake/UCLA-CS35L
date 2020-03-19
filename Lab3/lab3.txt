@@ -1,0 +1,116 @@
+Ryan Wakefield
+904975422
+Section 5
+
+I used the command: 
+wget ftp://ftp.gnu.org/gnu/coreutils/coreutils-8.29.tar.xz 
+
+to extract the tarball online. Next I used the command:
+
+wget ftp://ftp.gnu.org/gnu/coreutils/coreutils-8.29.tar.xz.sig
+
+to extraxt the signature of teh file, and finally i used the command:
+
+wget https://ftp.gnu.org/gnu/gnu-keyring.gpg
+
+to extract the keyring.
+
+Once I had the tarball from above, I unzipped it using:
+tar -xJf coreutils-8.29.tar.xz 
+This gives me access to all of the files and directories from the tarball.
+
+Finally, I verified the signature of the
+coreutils source code using the command:
+
+gpg --verify --keyring ./gnu-keyring.gpg coreutils-8.29.tar.xz.sig
+
+This outputted the following text: 
+
+gpg: Signature made Wed 27 Dec 2017 10:29:05 AM PST using RSA key ID 306037D9
+gpg: /u/ma/ugrad/ryan/.gnupg/trustdb.gpg: trustdb created
+gpg: Good signature from "Pádraig Brady <P@draigBrady.com>"
+gpg:                 aka "Pádraig Brady <pbrady@redhat.com>"
+gpg:                 aka "Pádraig Brady <pixelbeat@gnu.org>"
+gpg: WARNING: This key is not certified with a trusted signature!
+gpg:          There is no indication that the signature belongs to the owner.
+Primary key fingerprint: 6C37 DC12 121A 5006 BC1D  B804 DF6F D971 3060 37D9
+
+It is giving a warning that the key isn't certified with a trusted 
+signature and there is no indication that the signature 
+belongs to the owner.
+
+Next, we want to append the file path of the core_utils so we can compile 
+it outside of its directory. In order to change the path, 
+go into the core_utils directory and use the command:
+
+./configure --prefix=/u/ma/ugrad/ryan/cs35l/lab3/unpatched_core
+
+This will set the prefix in the core_util file to go to 
+the unpatched_core directory I created somewhere else on the server.
+
+Finally, i ran "make" and "make install" to make an 
+exectuable version of the software.
+
+Next, we want to reproduce the bug that occurs in version 8.29. 
+To do this, I looked at the Bug webpage and found that the 
+issue occurs when the command "unpatched_core/bin/ls -fA is run. It 
+still list the . and .. follows in the list when the -A flag should 
+restrict those from being listed, but the other flag will override 
+it. We need to install the patch to fix this issue.
+
+The first problem that occured was when trying to use wget to download 
+this file. It would create an error and terminate without creating 
+the file, so i had to manually copy and paste the text into a file.
+After copying this patch into a file called bug_patch, i ran the patch command:
+
+"patch -p1 < ../bug_patch" 
+
+as the bug_patch was in the previous directory. This gave me the output 
+
+1 out of 1 hunk FAILED -- saving rejects to file NEWS.rej
+patching file src/ls.c
+Hunk #1 succeeded at 1900 (offset -3 lines).
+patching file tests/local.mk
+Hunk #1 FAILED at 575.
+1 out of 1 hunk FAILED -- saving rejects to file tests/local.mk.rej
+patching file tests/ls/a-option.sh
+
+However, the result did say that the file was patched.
+
+
+Next i used the "make" command so it would compile the coreutils directory, 
+but would not recompile "unpatched_core". Just to make sure I 
+had a saved copy of the patch, I made a new directory:
+
+"mkdir patch_core"
+
+and then installed the patch to that 
+directory first by changing the configure path:
+
+"./configure --prefix=/u/ma/ugrad/ryan/cs35l/lab3/patch_core" 
+
+and then by using the command:
+
+"make install" in the core_utils directory.
+
+I checked to make sure the patch was downloaded successfully by going 
+into the patch_core directory and then running the command:
+
+"./bin/ls -aA /u/ma/ugrad/ryan/cs35l/lab3/"
+
+This threw me an error, not ouputting what I wanted, so I went 
+into coreutils and used the command "autoreconf -fi" I retried 
+using the command in the patched directory, and this time it 
+outputted the files in the directory, but this did not 
+output any . and .. files, so the file was successfully patched.
+
+The other way we could have tested it was byf going into 
+the coreutils direcotry and running the command:
+ 
+"./src/ls -aA"
+
+I ran this command and it outputted the files in this directory, but not 
+the . and .. files. Once again this shows that the patch was successful.
+
+
+

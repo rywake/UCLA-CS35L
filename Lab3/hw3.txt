@@ -1,0 +1,73 @@
+HW3 Answers
+
+Q1. The execution of ls may be slightly slower with
+ the patch than the actual version,
+ but overall I did not see much of a drop in performance between the two.
+ It is good to have the patch installed performance-wise because now ls
+ will be executing how it is supposed to.
+
+Q2. An issue that could occur by patching this 
+bug and not using the default version 
+is that people may have adapted to the use of this bug. They may
+have relied on this bug and adapted their code to account for this error, 
+their code now may not produce the same results with thispatch.If 
+this is patched and the default version is not being used,
+then people should be informed and aware of the update.
+
+Q3. When I run the command "./randline.py /dev/null" which is an empty file, 
+the following output is thrown:
+
+Traceback (most recent call last):
+  File "./randline.py", line 70, in <module>
+    main()
+  File "./randline.py", line 64, in main
+    sys.stdout.write(generator.chooseline())
+  File "./randline.py", line 34, in chooseline
+    return random.choice(self.lines)
+  File "/usr/lib64/python2.6/random.py", line 261, in choice
+    return seq[int(self.random() * len(seq))]  
+# raises IndexError if seq is empty
+IndexError: list index out of range
+
+An index error is thrown because this script is meant to pull and
+output random lines from the file but the files is empty.
+
+
+Q4. When I run the command "python3 randline.py /dev/null" on the empty
+text file, the following output is given:
+
+ File "./randline.py", line 65
+    except IOError as (errno, strerror):
+                      ^
+SyntaxError: invalid syntax
+
+This is a syntax error that occurs because python 3 doesn't support all of
+the same syntax as python two and not 
+all of the features are the same. Therefore
+a different error is given when running the program
+in python3 since it was meant for python2.
+
+Q5. There was an issue running my program on python2 vs. python 3. Some
+of the commands would execute the same on both
+versions, but some of them wouldn't. For example, when I run:
+
+"python2 shuf.py -i 3-6 -r" 
+
+this should infinitely loop through the numbers 3-6 randomly. However,
+this ends up throwing me the following errors:
+
+Traceback (most recent call last):
+  File "shuf.py", line 114, in <module>
+    execute.print_repeat()
+  File "shuf.py", line 35, in print_repeat
+    for loop in range(0,rep_range):
+OverflowError: range() result has too many items
+
+and will not execute the program. But when I run the same command on python3:
+
+"python3 shuf.py -i 3-6 -r"
+
+it will loop through the numbers 3-6 randomly and infinitely. This seems
+to be because python2 doesn't allow the size of the range I am executing,
+saying that the range is too large. Thus, it is not
+a good idea to run this program on python2 as it was meant for python3.
